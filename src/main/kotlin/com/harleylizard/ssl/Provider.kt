@@ -1,0 +1,18 @@
+package com.harleylizard.ssl
+
+import com.harleylizard.ssl.location.Location
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
+
+open class Provider(objects: ObjectFactory) {
+    val alias: Property<String> = objects.property(String::class.java)
+    val domain: Property<String> = objects.property(String::class.java)
+    val location: Property<Location> = objects.property(Location::class.java).default(Location.standard)
+
+    companion object {
+
+        private fun <T> Property<T>.default(t: T) = also {
+            set(t)
+        }
+    }
+}
