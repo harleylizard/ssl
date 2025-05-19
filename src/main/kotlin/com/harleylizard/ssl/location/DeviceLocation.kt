@@ -18,7 +18,7 @@ class DeviceLocation : Location {
     }
 
     override fun address(extension: SslExtension) = HttpClient.newHttpClient().use { client ->
-        val uri = extension.geolocationApi.getOrElse(SslPlugin.geolocationApi)
+        val uri = extension.locationApi.getOrElse(SslPlugin.locationApi)
         val publicIp = publicIp(client, extension.publicIpApi.getOrElse(SslPlugin.publicIpApi))
         val logger = extension.project().logger
         logger.info("Using public-ip address: $publicIp.")

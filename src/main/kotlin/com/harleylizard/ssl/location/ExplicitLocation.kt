@@ -11,8 +11,16 @@ class ExplicitLocation(objects: ObjectFactory) : Location {
     val country: Property<String> = objects.property(String::class.java)
 
     override fun address(extension: SslExtension) = Address(
-        city.getOrElse(""),
-        state.getOrElse(""),
-        country.getOrElse("")
+        city.getOrElse(LIKELY_CITY),
+        state.getOrElse(LIKELY_STATE),
+        country.getOrElse(LIKELY_COUNTRY)
     )
+
+    companion object {
+        // random ass, no reason
+        private const val LIKELY_CITY = "San Diego"
+        private const val LIKELY_STATE = "California"
+        private const val LIKELY_COUNTRY = "US"
+
+    }
 }
