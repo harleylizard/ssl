@@ -1,17 +1,13 @@
 package com.harleylizard.ssl.location
 
+import com.harleylizard.ssl.SslExtension
+import java.net.http.HttpClient
+
+@Suppress("CanSealedSubClassBeObject")
 class DeviceLocation : Location {
-    override val city: String
-        get() = TODO("Not yet implemented")
 
-    override val country: String
-        get() = TODO("Not yet implemented")
+    override fun address(extension: SslExtension) = HttpClient.newHttpClient().use {
 
-    override val state: String
-        get() = TODO("Not yet implemented")
-
-    companion object {
-
-
+        Address("", "", "")
     }
 }

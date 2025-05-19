@@ -4,6 +4,7 @@ import com.harleylizard.ssl.task.CreateKeystoreTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
+import java.net.URI
 
 open class SslPlugin : Plugin<Project> {
 
@@ -18,5 +19,10 @@ open class SslPlugin : Plugin<Project> {
 
         val objects = target.objects
         target.extensions.create("ssl", SslExtension::class.java, objects)
+    }
+
+    companion object {
+        val api: URI = URI.create("http://ip-api.com/json")
+
     }
 }

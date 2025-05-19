@@ -1,12 +1,10 @@
 package com.harleylizard.ssl.location
 
+import com.harleylizard.ssl.SslExtension
+
 sealed interface Location {
 
-    val city: String
-
-    val state: String
-
-    val country: String
+    fun address(extension: SslExtension): Address
 
     companion object {
         val standard = DeviceLocation()

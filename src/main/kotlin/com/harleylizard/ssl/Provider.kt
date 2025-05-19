@@ -7,12 +7,6 @@ import org.gradle.api.provider.Property
 open class Provider(objects: ObjectFactory) {
     val alias: Property<String> = objects.property(String::class.java)
     val domain: Property<String> = objects.property(String::class.java)
-    val location: Property<Location> = objects.property(Location::class.java).default(Location.standard)
+    val location: Property<Location> = objects.property(Location::class.java)
 
-    companion object {
-
-        private fun <T> Property<T>.default(t: T) = also {
-            set(t)
-        }
-    }
 }
