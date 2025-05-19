@@ -14,10 +14,10 @@ open class CreateKeystoreTask @Inject constructor(
     @TaskAction
     fun action() {
         val logger = project.logger
-        val extension = project.extensions.getByType(SslExtension::class.java)
         logger.info("Creating keystore $alias.")
-        val address = keystore.location.orElse(Location.standard).get().address(extension)
 
+        val extension = project.extensions.getByType(SslExtension::class.java)
+        val address = keystore.location.orElse(Location.standard).get().address(extension)
         logger.info("City for address is ${address.city}")
         logger.info("State for address is ${address.state}")
         logger.info("Country for address is ${address.country}")
