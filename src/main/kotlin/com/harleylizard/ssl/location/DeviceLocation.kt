@@ -1,8 +1,7 @@
 package com.harleylizard.ssl.location
 
-import com.google.gson.GsonBuilder
 import com.harleylizard.ssl.SslExtension
-import com.harleylizard.ssl.SslPlugin
+import com.harleylizard.ssl.api.Api
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -10,16 +9,18 @@ import java.net.http.HttpResponse
 
 class DeviceLocation : Location {
 
-    private fun publicIp(client: HttpClient, uri: URI): String {
-        val request = HttpRequest.newBuilder(uri).GET().build()
-        return client.send(request, HttpResponse.BodyHandlers.ofString())?.takeIf {
+    private fun publicIp(client: HttpClient, api: Api<String>): String {
+        val request = HttpRequest.newBuilder(api.uri).GET().build()
+        return api.parse(client.send(request, HttpResponse.BodyHandlers.ofString())?.takeIf {
             it.statusCode() == OK
-        }?.body() ?: throw RuntimeException("Failed to retrieve public-ip address for device.")
+        }) ?: throw RuntimeException("Failed to retrieve public-ip address for device.")
     }
 
     override fun address(extension: SslExtension) = HttpClient.newHttpClient().use { client ->
-        val uri = extension.locationApi.getOrElse(SslPlugin.locationApi)
-        val publicIp = publicIp(client, extension.publicIpApi.getOrElse(SslPlugin.publicIpApi))
+        val api = extension.locationApi
+        val uri = api.uri
+
+        val publicIp = publicIp(client, extension.publicIpApi)
         val logger = extension.project().logger
         logger.info("Using public-ip address: $publicIp.")
 
@@ -27,10 +28,8 @@ class DeviceLocation : Location {
         logger.info("Appended api $appendedUri")
         val request = HttpRequest.newBuilder(appendedUri).GET().header("Accept", "application/json").build()
 
-        client.send(request, HttpResponse.BodyHandlers.ofString())?.takeIf { it.statusCode() == OK }?.body()?.let { body ->
-            val gson = GsonBuilder().registerTypeAdapter(Address::class.java, Address.deserialiser).create()
-            gson.fromJson(body, Address::class.java)
-        } ?: throw RuntimeException("Failed to retrieve json geolocation.")
+        api.parse(client.send(request, HttpResponse.BodyHandlers.ofString())?.takeIf { it.statusCode() == OK })
+            ?: throw RuntimeException("Failed to retrieve location for keytool.")
     }
 
     companion object {

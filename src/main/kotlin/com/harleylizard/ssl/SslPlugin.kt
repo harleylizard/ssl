@@ -1,9 +1,12 @@
 package com.harleylizard.ssl
 
+import com.harleylizard.ssl.api.Api
+import com.harleylizard.ssl.api.IpApi
+import com.harleylizard.ssl.api.IpifyApi
+import com.harleylizard.ssl.location.Address
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
-import java.net.URI
 
 open class SslPlugin : Plugin<Project> {
 
@@ -17,8 +20,8 @@ open class SslPlugin : Plugin<Project> {
     companion object {
         const val GROUP = "ssl"
 
-        val locationApi: URI = URI.create("http://ip-api.com/json")
-        val publicIpApi: URI = URI.create("https://api.ipify.org")
+        val locationApi: Api<Address> = IpApi()
+        val publicIpApi: Api<String> = IpifyApi()
 
     }
 }

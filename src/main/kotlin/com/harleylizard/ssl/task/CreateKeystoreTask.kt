@@ -49,7 +49,7 @@ open class CreateKeystoreTask @Inject constructor(
             val home: String? = System.getenv(JAVA_HOME)
             if (home.empty) {
                 val path = environment["path", environment["Path", environment["PATH", ""]]]
-                environment["Path"] = "$path;${home}"
+                environment["Path"] = "$path;$home"
             }
             val args = "\"CN=$name, O=$domain, L=$city, ST=$state, C=$country\""
             it.commandLine(
