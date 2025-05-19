@@ -22,7 +22,8 @@ open class SslPlugin : Plugin<Project> {
     }
 
     companion object {
-        val api: URI = URI.create("http://ip-api.com/json")
+        val geolocationApi: URI = URI.create("https://ip-api.com/json")
+        val publicIpApi: URI = URI.create("https://api.ipify.org")
 
     }
 }

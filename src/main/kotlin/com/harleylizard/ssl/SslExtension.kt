@@ -8,10 +8,13 @@ import java.net.URI
 import javax.inject.Inject
 
 open class SslExtension @Inject constructor(@Inject private val objects: ObjectFactory) {
-    val api: Property<URI> = objects.property(URI::class.java)
+    val geolocationApi: Property<URI> = objects.property(URI::class.java)
+    val publicIpApi: Property<URI> = objects.property(URI::class.java)
+
+    val providers = mutableListOf<Provider>()
 
     fun keystore(unit: Provider.() -> Unit) {
-        unit(Provider(objects))
+        providers += Provider(objects).also(unit)
     }
 
     fun location(unit: ExplicitLocation.() -> Unit): Location = ExplicitLocation(objects).also(unit)
