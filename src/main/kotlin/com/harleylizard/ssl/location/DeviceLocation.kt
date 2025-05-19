@@ -14,20 +14,23 @@ class DeviceLocation : Location {
         val request = HttpRequest.newBuilder(uri).GET().build()
         return client.send(request, HttpResponse.BodyHandlers.ofString())?.takeIf {
             it.statusCode() == OK
-        }?.body() ?: throw RuntimeException("Failed to retrieve public ip address for device.")
+        }?.body() ?: throw RuntimeException("Failed to retrieve public-ip address for device.")
     }
 
     override fun address(extension: SslExtension) = HttpClient.newHttpClient().use { client ->
         val uri = extension.geolocationApi.getOrElse(SslPlugin.geolocationApi)
         val publicIp = publicIp(client, extension.publicIpApi.getOrElse(SslPlugin.publicIpApi))
+        val logger = extension.project().logger
+        logger.info("Using public-ip address: $publicIp.")
 
         val appendedUri = URI.create("$uri/$publicIp")
+        logger.info("Appended api $appendedUri")
         val request = HttpRequest.newBuilder(appendedUri).GET().header("Accept", "application/json").build()
 
         client.send(request, HttpResponse.BodyHandlers.ofString())?.takeIf { it.statusCode() == OK }?.body()?.let { body ->
             val gson = GsonBuilder().registerTypeAdapter(Address::class.java, Address.deserialiser).create()
             gson.fromJson(body, Address::class.java)
-        } ?: throw RuntimeException("")
+        } ?: throw RuntimeException("Failed to retrieve json geolocation.")
     }
 
     companion object {

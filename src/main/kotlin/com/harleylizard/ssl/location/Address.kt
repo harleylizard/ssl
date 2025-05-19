@@ -9,8 +9,11 @@ class Address(
 
     companion object {
         val deserialiser = JsonDeserializer { json, typeOfT, context ->
-
-            Address("", "", "")
+            val obj = json.asJsonObject
+            val city = obj.getAsJsonPrimitive("city").asString
+            val state = obj.getAsJsonPrimitive("region").asString
+            val country = obj.getAsJsonPrimitive("countryCode").asString
+            Address(city, state, country)
         }
 
     }

@@ -18,11 +18,11 @@ open class SslPlugin : Plugin<Project> {
         }
 
         val objects = target.objects
-        target.extensions.create("ssl", SslExtension::class.java, objects)
+        target.extensions.create("ssl", SslExtension::class.java, target, objects)
     }
 
     companion object {
-        val geolocationApi: URI = URI.create("https://ip-api.com/json")
+        val geolocationApi: URI = URI.create("http://ip-api.com/json")
         val publicIpApi: URI = URI.create("https://api.ipify.org")
 
     }

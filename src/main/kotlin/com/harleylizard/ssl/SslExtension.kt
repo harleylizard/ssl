@@ -2,22 +2,28 @@ package com.harleylizard.ssl
 
 import com.harleylizard.ssl.location.ExplicitLocation
 import com.harleylizard.ssl.location.Location
+import org.gradle.api.Project
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import java.net.URI
 import javax.inject.Inject
 
-open class SslExtension @Inject constructor(@Inject private val objects: ObjectFactory) {
+open class SslExtension @Inject constructor(
+    @Inject private val project: Project,
+    @Inject private val objects: ObjectFactory) {
+
     val geolocationApi: Property<URI> = objects.property(URI::class.java)
     val publicIpApi: Property<URI> = objects.property(URI::class.java)
 
-    val providers = mutableListOf<Provider>()
+    val keystores = mutableListOf<Keystore>()
 
-    fun keystore(unit: Provider.() -> Unit) {
-        providers += Provider(objects).also(unit)
+    fun keystore(unit: Keystore.() -> Unit) {
+        keystores += Keystore(objects).also(unit)
     }
 
     fun location(unit: ExplicitLocation.() -> Unit): Location = ExplicitLocation(objects).also(unit)
+
+    fun project() = project
 }
 
 
