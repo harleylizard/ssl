@@ -4,18 +4,28 @@ import com.harleylizard.ssl.Keystore
 import com.harleylizard.ssl.SslExtension
 import com.harleylizard.ssl.location.Location
 import org.gradle.api.DefaultTask
+import org.gradle.api.logging.Logger
 import org.gradle.api.tasks.TaskAction
 import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.process.ExecOperations
+import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 import javax.inject.Inject
 
 open class CreateKeystoreTask @Inject constructor(
     @Inject private val keystore: Keystore,
     @Inject private val name: String,
     @Inject private val exec: ExecOperations) : DefaultTask() {
+
+    private fun downloadRoot(logger: Logger, file: Path) {
+        URI.create("https://letsencrypt.org/certs/isrgrootx1.pem").toURL().openStream().use {
+            Files.copy(it, file, StandardCopyOption.REPLACE_EXISTING)
+            logger.info("Copied root from Let's Encrypt.")
+        }
+    }
 
     @TaskAction
     fun action() {
@@ -31,7 +41,7 @@ open class CreateKeystoreTask @Inject constructor(
 
         val service = extensions.getByType(JavaToolchainService::class.java)
         val bin = service.launcherFor {}.get().metadata.installationPath.dir("bin").asFile.path
-        logger.info("Using JDK path of $bin")
+        logger.info("Using JDK path $bin")
 
         val name = keystore.name.getOrElse("John Doe")
         val alias = keystore.alias.getOrElse(SslExtension.UNNAMED)
@@ -40,9 +50,14 @@ open class CreateKeystoreTask @Inject constructor(
         val (city, state, country) = address
 
         val source = Paths.get(project.layout.buildDirectory.get().asFile.path).resolve("keystore").resolve(alias)
-        logger.info("Keystore path $source.")
+        logger.info("Using Keystore path $source")
 
-        val jks = source.resolve("keystore.jks").make.deleteIfExists.toString()
+        val file = source.resolve("keystore.jks").make.deleteIfExists.toString()
+        val csr = source.resolve("cert.csr").deleteIfExists
+        logger.info("Using csr path $csr")
+
+        val root = source.resolve("$ROOT.pem")
+        downloadRoot(logger, root)
 
         exec.exec {
             val environment = it.environment
@@ -59,14 +74,35 @@ open class CreateKeystoreTask @Inject constructor(
                 "-keyalg", "RSA",
                 "-keysize", "2048",
                 "-validity", "365",
-                "-keystore", jks,
+                "-keystore", file,
                 "-storepass", password,
                 "-keypass", password,
                 "-dname", args)
+            it.commandLine(
+                "keytool",
+                "-certreq",
+                "-alias", alias,
+                "-keystore", file,
+                "-storepass", password,
+                "-file", csr.toString()
+            )
+            it.commandLine(
+                "keytool",
+                "-import",
+                "-trustcacerts",
+                "-alias", ROOT,
+                "-file", root.toString(),
+                "-keystore", file,
+                "-storepass", password,
+                "-noprompt"
+            )
+
         }
     }
 
     companion object {
+        private const val ROOT = "isrgrootx1"
+
         private const val JAVA_HOME = "JAVA_HOME"
 
         private val Path.deleteIfExists get() = also(Files::deleteIfExists)
