@@ -7,6 +7,12 @@ class Address(
     val state: String,
     val country: String) {
 
+    operator fun component1() = city
+
+    operator fun component2() = state
+
+    operator fun component3() = country
+
     companion object {
         val deserialiser = JsonDeserializer { json, typeOfT, context ->
             val obj = json.asJsonObject
