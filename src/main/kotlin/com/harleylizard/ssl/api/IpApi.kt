@@ -7,7 +7,7 @@ import java.net.URI
 import java.net.http.HttpResponse
 
 class IpApi : Api<Address> {
-    override val uri = URI.create("http://ip-api.com/json")
+    override val uri: URI = URI.create("http://ip-api.com/json")
 
     override fun parse(response: HttpResponse<String>?) = response?.body()?.let {
         val gson = GsonBuilder().registerTypeAdapter(Address::class.java, deserialiser).create()
@@ -22,6 +22,5 @@ class IpApi : Api<Address> {
             val country = obj.getAsJsonPrimitive("countryCode").asString
             Address(city, state, country)
         }
-
     }
 }

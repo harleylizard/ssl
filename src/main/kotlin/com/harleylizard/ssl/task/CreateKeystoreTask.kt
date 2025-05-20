@@ -11,7 +11,6 @@ import org.gradle.process.ExecOperations
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import javax.inject.Inject
 
@@ -44,19 +43,19 @@ open class CreateKeystoreTask @Inject constructor(
         logger.info("Using JDK path $bin")
 
         val name = keystore.name.getOrElse("John Doe")
-        val alias = keystore.alias.getOrElse(SslExtension.UNNAMED)
+        val alias = keystore.alias
         val domain = keystore.domain.getOrElse("localhost")
         val password = keystore.password.getOrElse("password")
         val (city, state, country) = address
 
-        val source = Paths.get(project.layout.buildDirectory.get().asFile.path).resolve("keystore").resolve(alias)
-        logger.info("Using Keystore path $source")
+        val folder = keystore.path
+        logger.info("Using Keystore path $folder")
 
-        val file = source.resolve("keystore.jks").make.deleteIfExists.toString()
-        val csr = source.resolve("cert.csr").deleteIfExists
+        val file = folder.resolve("keystore.jks").make.deleteIfExists.toString()
+        val csr = folder.resolve("cert.csr").deleteIfExists
         logger.info("Using csr path $csr")
 
-        val root = source.resolve("$ROOT.pem")
+        val root = folder.resolve("$ROOT.pem")
         downloadRoot(logger, root)
 
         exec.exec {
@@ -96,7 +95,6 @@ open class CreateKeystoreTask @Inject constructor(
                 "-storepass", password,
                 "-noprompt"
             )
-
         }
     }
 

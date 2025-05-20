@@ -9,12 +9,13 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 
 open class SslPlugin : Plugin<Project> {
+    val keystores = KeystoreSet()
 
     override fun apply(target: Project) {
         target.plugins.apply(JavaPlugin::class.java)
 
         val objects = target.objects
-        target.extensions.create("ssl", SslExtension::class.java, target, objects)
+        target.extensions.create("ssl", SslExtension::class.java, keystores, target, objects)
     }
 
     companion object {
